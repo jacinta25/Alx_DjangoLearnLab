@@ -8,11 +8,11 @@ def get_books_by_author(author_name):
     :return: QuerySet of books.
     """
     try:
-        author = Author.objects.get(name=author_name)
-        books = author.books.all()  # Using the related_name 'books' in ForeignKey
-        return books
-    except Author.DoesNotExist:
-        return f"Author '{author_name}' does not exist."
+        # Fetch all books where the author's name matches
+        books = Book.objects.filter(author__name=author_name)  # Using filter() and the ForeignKey relation
+        return books if books.exists() else f"No books found for author '{author_name}'."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 
 # Query 2: List all books in a library
