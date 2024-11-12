@@ -5,12 +5,18 @@ def get_books_by_author(author_name):
     """
     Retrieves all books written by a specific author.
     :param author_name: The name of the author.
-    :return: QuerySet of books.
+    :return: QuerySet of books or a message if none found.
     """
     try:
-        # Fetch all books where the author's name matches
-        books = Book.objects.filter(author__name=author_name)  # Using filter() and the ForeignKey relation
+        # Fetch the author object by name
+        author = Author.objects.get(name=author_name)  # First requirement
+
+        # Retrieve all books written by the author
+        books = Book.objects.filter(author=author)  # Second requirement
+
         return books if books.exists() else f"No books found for author '{author_name}'."
+    except Author.DoesNotExist:
+        return f"Author '{author_name}' does not exist."
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
