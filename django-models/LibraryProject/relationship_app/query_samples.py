@@ -44,8 +44,11 @@ def get_librarian_for_library(library_name):
     :return: Librarian object or message.
     """
     try:
+        # Fetch the library by name
         library = Library.objects.get(name=library_name)
-        librarian = library.librarian  # Using the related_name 'librarian' in OneToOneField
+        
+        # Use Librarian.objects.get with the library reference
+        librarian = Librarian.objects.get(library=library)
         return librarian
     except Library.DoesNotExist:
         return f"Library '{library_name}' does not exist."
