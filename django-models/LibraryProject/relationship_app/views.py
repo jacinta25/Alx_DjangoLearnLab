@@ -3,6 +3,11 @@ from .models import Book
 from .models import Library
 from django.views.generic.detail import DetailView
 
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
 # Function-based view to list books
 def list_books(request):
     books = Book.objects.all()
@@ -14,3 +19,18 @@ class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'  # Full path to the template
     context_object_name = 'library'
+
+
+#setting up login,logout and usercreationform views
+class UserLoginView(LoginView):
+    template_name = 'login.html'
+
+
+class UserLogoutView(LogoutView):
+    template_name = 'logout.html'
+
+
+class UserRegisterView(CreateView):
+    template_name = 'register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
