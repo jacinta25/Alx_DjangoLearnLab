@@ -14,6 +14,11 @@ from django.views.generic import CreateView
 #set up Role-Based views
 from django.contrib.auth.decorators import user_passes_test
 
+#Update Views to Enforce Permissions
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import BookForm
+
 # Function-based view to list books
 def list_books(request):
     books = Book.objects.all()
@@ -74,3 +79,38 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, 'member_view.html')
+
+#Update Views to Enforce Permissions
+# Add a new book
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')
+    else:
+        form = BookForm()
+    return render(request, 'add_book.html', {'form': form})
+
+# Edit a book
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'edit_book.html', {'form': form})
+
+# Delete a book
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.delete()
+        return redirect('book_list')
+    return render(request, 'delete_book.html', {'book': book})
