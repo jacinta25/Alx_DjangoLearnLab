@@ -5,6 +5,7 @@ from .views import LibraryDetailView  # Import the class-based view
 
 from .views import UserLoginView, UserLogoutView, UserRegisterView
 from relationship_app import views
+
 urlpatterns = [
     path('books/', list_books, name='list_books'),  # Route for the function-based view
     path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # Route for the class-based view
@@ -17,4 +18,7 @@ urlpatterns = [
     # URL for user logout
     path('logout/', views.UserLogoutView.as_view(template_name='logout.html'), name='logout'),
 
+    path('admin/', views.admin_view, name='admin_view'),
+    path('librarian/', views.librarian_view, name='librarian_view'),
+    path('member/', views.member_view, name='member_view'),
 ]
