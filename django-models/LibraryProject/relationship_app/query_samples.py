@@ -3,7 +3,7 @@ from .models import Author, Book, Library, Librarian
 # Query 1: Get all books by a specific author
 author_name = "J.K. Rowling"
 author = Author.objects.get(name=author_name)
-books_by_author = author.books.all()  # Using the related_name from the ForeignKey
+books_by_author = Book.objects.filter(author=author)  # Using the filter method
 print(f"Books by {author_name}: {[book.title for book in books_by_author]}")
 
 # Query 2: List all books in a library
