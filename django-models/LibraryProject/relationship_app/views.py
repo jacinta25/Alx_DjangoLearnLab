@@ -22,7 +22,7 @@ class LibraryDetailView(DetailView):
     context_object_name = 'library'  
 
 # Custom login view
-def custom_login(request):
+def LoginView(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -34,7 +34,7 @@ def custom_login(request):
     return render(request, 'relationship_app/login.html', {'form': form})
 
 # Logout view (Django's built-in view)
-class CustomLogoutView(LogoutView):
+class LogoutView(LogoutView):
     template_name = 'relationship_app/logout.html'
 
 # Registration view
