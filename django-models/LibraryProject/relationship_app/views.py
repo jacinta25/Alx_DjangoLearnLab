@@ -39,11 +39,12 @@ class LogoutView(LogoutView):
 
 # Registration view
 def register(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
+            user = form.save()  # Save the new user
+            login(request, user)  # Log the user in immediately after registration
+            return redirect('login')  # Redirect to the login page or home
     else:
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})

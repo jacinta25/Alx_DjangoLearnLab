@@ -12,5 +12,7 @@ urlpatterns = [
     # Authentication views
     path('login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),  # Use Django's LoginView
     path('logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),  # Use Django's LogoutView
-    path('register/', register, name='register'),  # Custom register view
+    path('register/', register, name='register'),  # Ensure this is correctly pointing to the register view
 ]
+
+
