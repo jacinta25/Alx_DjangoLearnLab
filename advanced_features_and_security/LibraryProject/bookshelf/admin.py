@@ -11,7 +11,7 @@ class BookAdmin(admin.ModelAdmin):
 
 admin.site.register(Book, BookAdmin)
 
-class UserAdmin(BaseUserAdmin):
+class CustomUserAdmin(BaseUserAdmin):
     list_display = ["email", "date_of_birth"]
 
-admin.site.register(CustomUser, UserAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)
