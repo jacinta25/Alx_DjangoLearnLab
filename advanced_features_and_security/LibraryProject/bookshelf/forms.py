@@ -1,14 +1,11 @@
-# bookshelf/forms.py
 from django import forms
-from bookshelf.models import Book
 
-class BookForm(forms.ModelForm):
-    class Meta:
-        model = Book
-        fields = ['title', 'author', 'published_date']
+class ExampleForm(forms.Form):
+    title = forms.CharField(max_length=100, label="Title")
+    description = forms.CharField(
+        widget=forms.Textarea, label="Description", required=False
+    )
+    published_date = forms.DateField(
+        widget=forms.SelectDateWidget, label="Published Date", required=False
+    )
 
-    def clean_title(self):
-        title = self.cleaned_data.get('title')
-        if len(title) < 3:
-            raise forms.ValidationError("Title must be at least 3 characters long.")
-        return title
