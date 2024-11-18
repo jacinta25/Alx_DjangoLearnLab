@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Book
+from .models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # Register your models here.
 class BookAdmin(admin.ModelAdmin):
@@ -8,3 +10,8 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ('publication_year',)  # Use a comma to create a tuple
 
 admin.site.register(Book, BookAdmin)
+
+class UserAdmin(BaseUserAdmin):
+    list_display = ["email", "date_of_birth"]
+
+admin.site.register(User, UserAdmin)
