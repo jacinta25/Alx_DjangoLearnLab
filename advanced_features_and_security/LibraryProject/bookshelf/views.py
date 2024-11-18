@@ -33,3 +33,14 @@ def book_edit(request, book_id):
         book.save()
         return redirect('book_list')
     return render(request, 'bookshelf/book_form.html', {'book': book})
+
+
+#Secure Data Access in Views
+def search_books(request):
+    query = request.GET.get('q', '')
+    if query:
+        # Safe query using Django ORM
+        books = Book.objects.filter(title__icontains=query)
+    else:
+        books = Book.objects.all()
+    return render(request, 'bookshelf/book_list.html', {'books': books})

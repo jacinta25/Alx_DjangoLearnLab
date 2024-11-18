@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-h$9%x7ls*n#dor6870_znjxz)i7!-zv*5y$_-&z8g3+nk!60g#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf.apps.BookshelfConfig',
     'relationship_app',
+    'csp',
     
 ]
 
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -129,5 +131,25 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#added
+#Added settings
+#CustomUser
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+#security headers
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+#Ensure cookies are secure, preventing session hijacking
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+#Forces Django to redirect all HTTP request to HTTPS
+SUCURE_SSL_REDIRECT =True
+
+#Enable HTTP Script Transport Security (HSTS) to prevent downgrade attacks
+SECURE_HSTS_SECONDS = 3153600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+
+
