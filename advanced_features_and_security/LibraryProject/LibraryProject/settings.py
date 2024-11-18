@@ -151,5 +151,12 @@ SUCURE_SSL_REDIRECT =True
 SECURE_HSTS_SECONDS = 3153600
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for one year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allow site to be preloaded by browsers
 
 
