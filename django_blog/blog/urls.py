@@ -1,14 +1,10 @@
-# blog/urls.py
-from django.urls import path, include
-from .views import RegisterView, ProfileView, LogoutView
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from . import views
 
 urlpatterns = [
-    # Custom views
-    path('register/', RegisterView, name='register'),
-    path('profile/', ProfileView, name='profile'),
-    path('login/', ProfileView, name='login'),
-
-    # Django's built-in auth views
-    path('logout/', LogoutView, name='logout'),  # Optional, since we can use LogoutView
-    path('', include('django.contrib.auth.urls')),  # Handles login, logout, password reset, etc.
+    path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('register/', views.register_view, name='register'),
+    path('profile/', views.profile_view, name='profile'),
 ]
