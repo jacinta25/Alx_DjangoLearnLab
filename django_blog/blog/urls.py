@@ -6,6 +6,7 @@ urlpatterns = [
     # Custom views
     path('register/', RegisterView, name='register'),
     path('profile/', ProfileView, name='profile'),
+    path('login/', ProfileView, name='login'),
 
     # Django's built-in auth views
     path('logout/', LogoutView, name='logout'),  # Optional, since we can use LogoutView
