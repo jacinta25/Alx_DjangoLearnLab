@@ -1,76 +1,44 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.contrib import messages
-from .forms import CustomUserCreationForm, UserProfileForm
-
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import CreateView
 from django.urls import reverse_lazy
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserChangeForm
+from .models import Profile
+from .forms import ProfileForm
 
-# Registration view
-def register_view(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('profile')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'blog/register.html', {'form': form})
+# Registration View
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy("login")  # Redirect to login after successful signup
+    template_name = "registration/register.html"  # Template for the signup page
 
-# Profile view
+# Profile Management View
 @login_required
-def profile_view(request):
+def profile(request):
+    # Get the user's profile, or create one if it doesn't exist
+    if not hasattr(request.user, 'profile'):
+        Profile.objects.create(user=request.user)
+    
+    profile = request.user.profile
+
+    # Handle POST request for form submission
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('profile')
+        user_form = UserChangeForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()  # Update user information
+            profile_form.save()  # Update profile information
+            return redirect('profile')  # Redirect to profile page after saving
+
     else:
-        form = UserProfileForm(instance=request.user)
-    return render(request, 'blog/profile.html', {'form': form})
+        user_form = UserChangeForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
 
-
-#Blog post management features
-class PostListView(ListView):
-    model = Post
-    template_name = 'posts/post_list.html'
-    context_object_name = 'posts'
-
-class PostDetailView(DetailView):
-    model = Post
-    template_name = 'posts/post_detail.html'
-
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['title', 'content']
-    template_name = 'posts/post_form.html'
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields = ['title', 'content']
-    template_name = 'posts/post_form.html'
-
-    def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
-
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
-    template_name = 'posts/post_confirm_delete.html'
-    success_url = reverse_lazy('post-list')
-
-    def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+    return render(request, 'blog/profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'profile': profile  # Pass the profile object to the template
+    })
