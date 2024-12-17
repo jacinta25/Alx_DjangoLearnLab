@@ -24,17 +24,17 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
 
     # Blog post views
-    path('posts/', PostListView.as_view(), name='post-list'),  # List all posts
+    path('post/', PostListView.as_view(), name='post-list'),  # List all posts
     
     # Detail view of a single post
-    path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     
     # Create a new post
-    path('posts/new/', PostCreateView.as_view(), name='post-create'),
+    path('post/new/', PostCreateView.as_view(), name='post-create'),
     
     # Edit a specific post
-    path('posts/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     
     # Delete a specific post
-    path('posts/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 ]
