@@ -33,7 +33,7 @@ urlpatterns = [
     path('posts/new/', PostCreateView.as_view(), name='post-create'),
     
     # Edit a specific post
-    path('posts/<int:pk>/edit/', PostUpdateView.as_view(), name='post-update'),
+    path('posts/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     
     # Delete a specific post
     path('posts/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
