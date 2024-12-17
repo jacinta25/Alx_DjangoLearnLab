@@ -11,16 +11,30 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', include('django.contrib.auth.urls')),  # Includes Django auth views (login, logout)
+    # Includes Django auth views (login, logout, password reset)
+    path('', include('django.contrib.auth.urls')),  
+    
+    # Home page
     path('home/', TemplateView.as_view(template_name='blog/home.html'), name='home'),
+    
+    # Registration page
     path('register/', SignUpView.as_view(), name='register'),
-    path('posts/', TemplateView.as_view(template_name='blog/posts.html'), name='posts'),
-    path('profile/', profile, name='profile'),  # Profile management
+    
+    # Profile page
+    path('profile/', profile, name='profile'),
 
-    #path('', PostListView.as_view(), name='post-list'),
-    #path('<int:pk>/', PostDetailView.as_view(), name='post-detail'),
-    #path('new/', PostCreateView.as_view(), name='post-create'),
-    #path('<int:pk>/edit/', PostUpdateView.as_view(), name='post-update'),
-    #path('<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
-
-    ]
+    # Blog post views
+    path('posts/', PostListView.as_view(), name='post-list'),  # List all posts
+    
+    # Detail view of a single post
+    path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    
+    # Create a new post
+    path('posts/new/', PostCreateView.as_view(), name='post-create'),
+    
+    # Edit a specific post
+    path('posts/<int:pk>/edit/', PostUpdateView.as_view(), name='post-update'),
+    
+    # Delete a specific post
+    path('posts/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+]

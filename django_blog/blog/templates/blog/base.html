@@ -4,31 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A blog created using Django where users can post and read articles.">
+    <meta name="keywords" content="Django, Blog, Articles, Posts">
+    <meta name="author" content="Your Name">
     <title>{% block title %}Django Blog{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <nav>
+    <header role="banner">
+        <nav role="navigation">
             <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
+                <li class="{% if request.resolver_match.url_name == 'post-list' %}active{% endif %}">
+                    <a href="{% url 'post-list' %}">Home</a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="{% if request.resolver_match.url_name == 'post-create' %}active{% endif %}">
+                        <a href="{% url 'post-create' %}">New Post</a>
+                    </li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li class="{% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                        <a href="{% url 'login' %}">Login</a></li>
+                    <li class="{% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+                        <a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
 
-    <div class="content">
-        {% block content %}
-        <!-- Page-specific content goes here -->
-        {% endblock %}
+    <div class="messages">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 
-    <footer>
-        <p>&copy; 2024 Django Blog</p>
+    <main role="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2024 Django Blog | <a href="#">Contact Us</a> | Follow us on: 
+            <a href="#" target="_blank">Twitter</a>, 
+            <a href="#" target="_blank">Facebook</a>, 
+            <a href="#" target="_blank">Instagram</a>
+        </p>
     </footer>
 
     <script src="{% static 'js/scripts.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

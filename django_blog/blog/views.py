@@ -12,6 +12,7 @@ from .forms import CustomUserCreationForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Post
+from .forms import PostForm
 
 from django.views.generic.edit import FormMixin
 from .forms import CommentForm
@@ -53,54 +54,71 @@ def profile(request):
     })
 
 #Blog Post Management Features (CRUD operations)
+
+# Post List View (Accessible to all users)
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'
+    template_name = 'blog/post_list.html' 
     context_object_name = 'posts'
 
-class PostDetailView(DetailView, FormMixin):
-    model = Post
-    template_name = 'blog/post_detail.html'
-    form_class = CommentForm
+    def get_queryset(self):
+        return Post.objects.all()  
 
+# Post Detail View (Accessible to all users)
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'  
+    context_object_name = 'post'
+
+
+# Post Create View (Only accessible by authenticated users)
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'  
+    
+
+    # Automatically set the author to the currently logged-in user
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    # Redirect to the post detail page after creation
     def get_success_url(self):
         return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        form.instance.post = self.get_object()
-        form.save()
-        return super().form_valid(form)
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['title', 'content']
-    template_name = 'blog/post_form.html'
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-    
+# Post Update View (Only accessible by the post author)
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fileds = ['title', 'content']
-    template_name = 'blog/post_form.html'
+    form_class = PostForm
+    template_name = 'blog/post_form.html'  
 
+    # Automatically set the author to the currently logged-in user (in case the user logged out and back in)
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
-    
+
+    # Test if the logged-in user is the author of the post
     def test_func(self):
         post = self.get_object()
-        return self.request.user == post.author
-    
+        return self.request.user == post.author  # Ensure only the author can edit the post
+
+    # Redirect to the post detail page after update
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
+
+
+# Post Delete View (Only accessible by the post author)
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    success_url = reverse_lazy('post-list')
+    template_name = 'blog/post_confirm_delete.html' 
 
+    # Test if the logged-in user is the author of the post
     def test_func(self):
         post = self.get_object()
-        return self.request.user == post.author
-        
-    
+        return self.request.user == post.author  # Ensure only the author can delete the post
 
+    # Redirect to the post list page after deletion
+    def get_success_url(self):
+        return reverse_lazy('posts')  # Redirect to the posts list page
