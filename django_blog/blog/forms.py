@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Post
 from .models import Comment
 
+from taggit.forms import TagWidget
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Enter a valid email address.")
@@ -27,22 +29,49 @@ class ProfileForm(forms.ModelForm):
         fields = ['bio', 'profile_picture']
 
 
+from django import forms
+from taggit.forms import TagWidget
+from .models import Post
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']
+        fields = ['title', 'content', 'tags']  # Include all fields for the post
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter title'}),
-            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your content here'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter title',
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your content here',
+                'rows': 5,
+            }),
+            'tags': TagWidget(attrs={
+                'class': 'form-control',
+                'placeholder': 'Add tags separated by commas',
+            }),
         }
 
-    def save(self, commit=True):
-        # Customize save method to automatically assign the logged-in user as the author
+    def save(self, commit=True, user=None):
+        """
+        Override save to assign the logged-in user as the author of the post.
+        
+        Args:
+            commit (bool): Whether to save the instance immediately.
+            user (User): The logged-in user to set as the author.
+        
+        Returns:
+            Post: The saved or unsaved Post instance.
+        """
         instance = super().save(commit=False)
+        if user is not None:
+            instance.author = user  # Assign the logged-in user as the author
         if commit:
-            instance.author = self.instance.author  # Assign author when the post is saved
             instance.save()
+            self.save_m2m()  # Save many-to-many fields like tags
         return instance
+
 
 
 
@@ -54,7 +83,7 @@ class CommentForm(forms.ModelForm):
     
     content = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your comment here', 'rows': 4})
-    )
+    )  
 
     def clean_content(self):
         content = self.cleaned_data['content']

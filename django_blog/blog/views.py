@@ -21,6 +21,7 @@ from django.shortcuts import get_object_or_404
 from .models import Comment
 
 from django.db.models import Q
+from taggit.models import Tag
 
 
 # Registration View
