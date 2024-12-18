@@ -1,14 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Post, Comment
 from django.contrib.auth.forms import UserCreationForm
-
-from .models import Post
-from .models import Comment
-
 from taggit.forms import TagWidget
 
 
+# User Creation Form
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Enter a valid email address.")
 
@@ -23,16 +20,15 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
         return user
 
+
+# Profile Form
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'profile_picture']
 
 
-from django import forms
-from taggit.forms import TagWidget
-from .models import Post
-
+# Post Form with Tag Widget
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
@@ -73,17 +69,15 @@ class PostForm(forms.ModelForm):
         return instance
 
 
-
-
-#blog posts comment
+# Comment Form
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
-    
+
     content = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your comment here', 'rows': 4})
-    )  
+    )
 
     def clean_content(self):
         content = self.cleaned_data['content']
