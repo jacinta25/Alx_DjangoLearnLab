@@ -13,22 +13,18 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header role="banner">
-        <nav role="navigation">
+    <header>
+        <nav>
             <ul>
-                <li class="{% if request.resolver_match.url_name == 'post-list' %}active{% endif %}">
-                    <a href="{% url 'post-list' %}">Home</a>
-                </li>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
                 {% if user.is_authenticated %}
-                    <li class="{% if request.resolver_match.url_name == 'post-create' %}active{% endif %}">
-                        <a href="{% url 'post-create' %}">New Post</a>
-                    </li>
+                    <li><a href="{% url 'post-create' %}">Create Post</a></li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
-                    <li class="{% if request.resolver_match.url_name == 'login' %}active{% endif %}">
-                        <a href="{% url 'login' %}">Login</a></li>
-                    <li class="{% if request.resolver_match.url_name == 'register' %}active{% endif %}">
-                        <a href="{% url 'register' %}">Register</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -48,7 +44,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer role="contentinfo">
+    <footer>
         <p>&copy; 2024 Django Blog | <a href="#">Contact Us</a> | Follow us on: 
             <a href="#" target="_blank">Twitter</a>, 
             <a href="#" target="_blank">Facebook</a>, 

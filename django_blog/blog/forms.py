@@ -51,3 +51,13 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+    
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your comment here', 'rows': 4})
+    )
+
+    def clean_content(self):
+        content = self.cleaned_data['content']
+        if len(content) < 10:
+            raise forms.ValidationError("Comment must be at least 10 characters long.")
+        return content
