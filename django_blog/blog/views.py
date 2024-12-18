@@ -189,7 +189,15 @@ def search_posts(request):
 
 
 
-def posts_by_tag(request, tag):
-    tag_instance = get_object_or_404(Tag, name=tag)
-    posts = Post.objects.filter(tags__in=[tag_instance])
-    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    
+    def get_queryset(self):
+        # Get the tag based on the slug
+        tag_slug = self.kwargs.get('tag_slug')
+        tag = Tag.objects.get(slug=tag_slug)
+        # Filter posts by the selected tag
+        return Post.objects.filter(tags=tag)
