@@ -33,11 +33,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']  # Include all fields for the post
-        widgets = [
-            'tags': TagWidget(attrs={
-                'class': 'form-control',
-                'placeholder': 'Add tags separated by commas'    
-        })]
+        widgets = [TagWidget()]
 
     def save(self, commit=True, user=None):
         """
