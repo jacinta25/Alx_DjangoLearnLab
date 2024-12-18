@@ -12,6 +12,7 @@ from blog.views import (
     CommentUpdateView,
     CommentDeleteView,
 )
+from .views import search_posts, PostListView, posts_by_tag
 
 urlpatterns = [
     # Home page
@@ -35,4 +36,10 @@ urlpatterns = [
 
     # Django auth URLs (login, logout, password reset, etc.)
     path('', include('django.contrib.auth.urls')),
+
+    # Search URL
+    path('search/', search_posts, name='search-posts'),
+    
+    # View posts by tag
+    path('tag/<str:tag>/', posts_by_tag, name='posts-by-tag'),
 ]
