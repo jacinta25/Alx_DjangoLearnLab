@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Post, Comment
 from django.contrib.auth import get_user_model
 
-class CommentSerializer(serializers.modelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
 
     class Meta:
