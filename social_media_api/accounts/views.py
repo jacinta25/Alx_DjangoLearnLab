@@ -3,14 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
-from .serializers import RegisterSerializer, UserSerializer, FollowSerializer
-from rest_framework.decorators import api_view
+from .serializers import RegisterSerializer, UserSerializer
+from rest_framework.permissions import IsAuthenticated
 from posts.models import Post
 from posts.serializers import PostSerializer
 
-# Create your views here.
-User = get_user_model
+# Get the user model
+CustomUser = get_user_model()
 
+# Create your views here.
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
@@ -25,40 +26,51 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        user = get_user_model().objects.filter(username=username).first()
-
+        user = CustomUser.objects.filter(username=username).first()
 
         if user and user.check_password(password):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key})
         return Response({'error': 'Invalid credentials'}, status=400)
     
-@api_view(['POST'])
-def follow_user(request, user_id):
-    try:
-        user_to_follow = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+class FollowUserView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+    queryset = CustomUser.objects.all()
 
-    if user_to_follow == request.user:
-        return Response({'error': 'You cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, user_id):
+        try:
+            user_to_follow = self.get_queryset().get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    request.user.follow(user_to_follow)
-    return Response({'message': f'You are now following {user_to_follow.username}.'}, status=status.HTTP_200_OK)
+        if user_to_follow == request.user:
+            return Response({'error': 'You cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def unfollow_user(request, user_id):
-    try:
-        user_to_unfollow = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        request.user.following.add(user_to_follow)
+        return Response({'message': f'You are now following {user_to_follow.username}.'}, status=status.HTTP_200_OK)
 
-    request.user.unfollow(user_to_unfollow)
-    return Response({'message': f'You have unfollowed {user_to_unfollow.username}.'}, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-def user_feed(request):
-    posts = Post.objects.filter(author__in=request.user.following.all()).order_by('-created_at')
-    serializer = PostSerializer(posts, many=True)
-    return Response(serializer.data)
+class UnfollowUserView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+    queryset = CustomUser.objects.all()
+
+    def post(self, request, user_id):
+        try:
+            user_to_unfollow = self.get_queryset().get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        request.user.following.remove(user_to_unfollow)
+        return Response({'message': f'You have unfollowed {user_to_unfollow.username}.'}, status=status.HTTP_200_OK)
     
+class UserFeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        followed_users = user.following.all()
+        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
