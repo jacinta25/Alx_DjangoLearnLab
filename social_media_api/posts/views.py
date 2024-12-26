@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Like
-from django.shortcuts import get_object_or_404
 from notifications.models import Notification
+from rest_framework import generics
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -72,8 +72,8 @@ class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        # Fetch the post object
-        post = get_object_or_404(Post, pk=pk)
+        # Use generics.get_object_or_404 instead of django.shortcuts.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
         # Create a like or return existing one
         like, created = Like.objects.get_or_create(user=request.user, post=post)
@@ -94,8 +94,8 @@ class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        # Fetch the post object
-        post = get_object_or_404(Post, pk=pk)
+        # Use generics.get_object_or_404 instead of django.shortcuts.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
         
         # Try to find and delete the like
         try:
