@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Like
-from notifications.models import Notification
+from django.shortcuts import get_object_or_404
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -68,38 +68,26 @@ class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+        like, created = Like.objects.get_or_create(user=user, post=post)
+        if created:
+            # Logic for notification (e.g., Notify post owner)
+            return Response({"message": "Post liked successfully"})
+        return Response({"message": "You have already liked this post"})
 
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=404)
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
-        if not created:
-            return Response({'message': 'You have already liked this post'}, status=400)
-        
-        Notification.objects.create(
-            recipient = post.author,
-            actor=request.user,
-            verb='liked your post',
-            target=post
-        )
-
-        return Response({'message': 'Post like successfully'}, status=200)
-    
 class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
         try:
-            post = Post.objects.get(pk=pk)
+            like = Like.objects.get(user=user, post=post)
+            like.delete()
+            # Logic for notification cleanup (if any)
+            return Response({"message": "Post unliked successfully"})
+        except Like.DoesNotExist:
+            return Response({"message": "You have not liked this post"}, status=400)
 
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=404)
-            
-        like = Like.objects.filter(user=request.user, post=post).first()
-        if not like:
-            return Response({'error' : 'You have not liked this post'}, status=400)
-            
-        like.delete()
-        return Response({'message': 'Post unliked successfully'}, status=200)
         
