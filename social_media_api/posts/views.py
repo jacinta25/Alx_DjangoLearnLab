@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Like
 from django.shortcuts import get_object_or_404
+from notifications.models import Notification
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -64,30 +65,42 @@ class UserFeedView(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     
+
+
+
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        # Fetch the post object
         post = get_object_or_404(Post, pk=pk)
-        user = request.user
-        like, created = Like.objects.get_or_create(user=user, post=post)
+        
+        # Create a like or return existing one
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
         if created:
-            # Logic for notification (e.g., Notify post owner)
+            # Create a notification for the post owner
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target=post
+            )
             return Response({"message": "Post liked successfully"})
-        return Response({"message": "You have already liked this post"})
+        else:
+            return Response({"message": "You have already liked this post"})
 
 class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        # Fetch the post object
         post = get_object_or_404(Post, pk=pk)
-        user = request.user
+        
+        # Try to find and delete the like
         try:
-            like = Like.objects.get(user=user, post=post)
+            like = Like.objects.get(user=request.user, post=post)
             like.delete()
-            # Logic for notification cleanup (if any)
             return Response({"message": "Post unliked successfully"})
         except Like.DoesNotExist:
             return Response({"message": "You have not liked this post"}, status=400)
-
-        
