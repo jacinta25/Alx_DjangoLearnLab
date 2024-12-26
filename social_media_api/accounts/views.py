@@ -4,9 +4,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer, UserSerializer
-from rest_framework.permissions import IsAuthenticated
-from posts.models import Post
-from posts.serializers import PostSerializer
+
 
 # Get the user model
 CustomUser = get_user_model()
@@ -65,15 +63,4 @@ class UnfollowUserView(generics.GenericAPIView):
         request.user.following.remove(user_to_unfollow)
         return Response({'message': f'You have unfollowed {user_to_unfollow.username}.'}, status=status.HTTP_200_OK)
     
-class UserFeedView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        # Fetch users followed by the current user
-        following_users = user.following.all()
-        # Retrieve posts from these users, ordered by creation date
-        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
-        # Serialize the posts
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)

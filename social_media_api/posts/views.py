@@ -6,7 +6,8 @@ from .serializers import PostSerializer, CommentSerializer
 from rest_framework.exceptions import NotFound
 
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -46,3 +47,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+class UserFeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # Fetch users followed by the current user
+        following_users = user.following.all()
+        # Retrieve posts from these users, ordered by creation date
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        # Serialize the posts
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
