@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-8^(c0c&5m8f=wo()-7i(1g_fe=&2lnei*_4l(_t5rt6&0x8*iu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['jacinta25.pythonanywhere.com']
 
 
 # Application definition
@@ -79,8 +79,18 @@ WSGI_APPLICATION = 'social_media_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-
+SECRET_KEY = os.getenv('SECRET_KEY')
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
+'''DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'social_media_api',
@@ -89,7 +99,9 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '3306',
     }
-}
+}'''
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -145,4 +157,3 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-SECRET_KEY = os.getenv('SECRET_KEY')
